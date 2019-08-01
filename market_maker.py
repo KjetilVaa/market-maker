@@ -1,23 +1,35 @@
 import logging
+import time
 
 from market_maker.utils import log
 from market_maker.market_data_receiver.market_data_receiver import MarketDataReceiver
 from market_maker.position_manager.position_manager import PositionManager
-
+from market_maker.strategy_manager.strategy_manager import StrategyManager
 
 def main():
 
     # Should the bot run in 'SANDBOX' or 'REAL' mode?
-    mode="SANDBOX"
+    mode="REAL"
     exchange="coinbase_pro"
 
     # Data receiver
     market_data_receiver = MarketDataReceiver(exchange=exchange, mode=mode)
-    market_data_receiver.authenticate()
+
+    # Authenticate market reciever
+    #market_data_receiver.authenticate()
+    #time.sleep(2)
+
+    # Start the live orderbook for market receiver
     market_data_receiver.start_orderbook()
 
-    #Wait for orderbook and authentication to fully load
-    time.sleep(3)
+    #Initialize the strategy manager
+    strategy_manager = StrategyManager(market_data_receiver.orderbook)
+
+    # Wait for orderbook to fully load
+    time.sleep(5)
+
+    # Start the strategy manager
+    strategy_manager.start()
 
     # Position manager
 

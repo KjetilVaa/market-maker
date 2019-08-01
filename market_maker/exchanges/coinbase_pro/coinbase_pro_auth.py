@@ -16,7 +16,7 @@ class CoinbaseProAuth(cbpro.AuthenticatedClient):
         self.logger = logging.getLogger("root")
         self.mode = mode
         self.minimum_accounts = 2
-        self.api_key = settings[mode]["API_KEY"]
+        self.api_key = settings[self.mode]["API_KEY"]
         self.api_secret = settings[self.mode]["API_SECRET"]
         self.api_passphrase = settings[self.mode]["API_PASSPHRASE"]
         self.api_url = settings[self.mode]["API_URL"]

@@ -22,8 +22,6 @@ class MarketDataReceiver():
         #Check if provided exchange is supported
         self.orderbook, self.auth = self._initialize_exchange(exchange)
         self.rate_limit = self.orderbook.rate_limit
-        self.metrics = None
-        self.accounts = None
 
     def authenticate(self):
         self.auth.authenticate(verbose=True)

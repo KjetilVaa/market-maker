@@ -10,7 +10,7 @@ coinbase_pro_settings = {
     # Market to listen to - fetch from strategy_settings
     "SYMBOL": strategy_settings["STRATEGY"]["SYMBOL"],
     # Table lenght consider each side of the table (bids > MIN_TABLE_LENGTH and asks > MIN_TABLE_LENGTH)
-    "MAX_TABLE_LENGTH": 20,
+    "MAX_TABLE_LENGTH": 200,
     "MIN_TABLE_LENGTH": 5,
     # Coinbase's websocket is rate-limited to 1 request per 4 seconds
     "RATE_LIMIT": 3,
