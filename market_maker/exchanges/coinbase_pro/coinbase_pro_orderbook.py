@@ -51,6 +51,8 @@ class CoinbaseProOrderbook(cbpro.WebsocketClient):
         self.asks_depth = 0.0
         #spread
         self.spread = 0.0
+        #spread precentage = best_ask/spread
+        self.spread_precentage = 0.0
 
 
     def on_open(self):
@@ -115,6 +117,7 @@ class CoinbaseProOrderbook(cbpro.WebsocketClient):
         self.best_bid = next(iter(self.bids))
         self.best_ask = next(iter(self.asks))
         self.spread = self.best_ask - self.best_bid
+        self.spread_precentage = self.spread/self.best_ask
 
     #Retrive metrics as a dict
     def get_metrics(self):
@@ -128,6 +131,7 @@ class CoinbaseProOrderbook(cbpro.WebsocketClient):
         res["bids_depth"] = self.bids_depth
         res["asks_depth"] = self.asks_depth
         res["spread"] = self.spread
+        res["spread_precentage"] = self.spread_precentage
         return res
 
     def is_ready(self):
@@ -145,3 +149,4 @@ class CoinbaseProOrderbook(cbpro.WebsocketClient):
         print("Bids depth: ",res["bids_depth"])
         print("Asks depth: ", res["asks_depth"])
         print("Spread: ", res["spread"])
+        print("Spread precentage: ", res["spread_precentage"])

@@ -11,27 +11,39 @@ def main():
     # Should the bot run in 'SANDBOX' or 'REAL' mode?
     mode="REAL"
     exchange="coinbase_pro"
+    logger = logging.getLogger("root")
 
     # Data receiver
     market_data_receiver = MarketDataReceiver(exchange=exchange, mode=mode)
 
     # Authenticate market reciever
-    #market_data_receiver.authenticate()
-    #time.sleep(2)
+    market_data_receiver.authenticate()
+    # Wait to fully authenticate
+    time.sleep(2)
 
     # Start the live orderbook for market receiver
-    market_data_receiver.start_orderbook()
+    #market_data_receiver.start_orderbook()
 
     #Initialize the strategy manager
-    strategy_manager = StrategyManager(market_data_receiver.orderbook)
+    #strategy_manager = StrategyManager(market_data_receiver.orderbook)
 
-    # Wait for orderbook to fully load
-    time.sleep(5)
+    #Initialize position manager
+    position_manager = PositionManager(market_data_receiver.auth)
 
-    # Start the strategy manager
-    strategy_manager.start()
+    # Wait for strategy and position manager to fully load
+    #logger.info("Launching strategy and position manager")
+    #time.sleep(3)
 
+    # Here we start the infinite loop that listens to the orderbook
+    #while True:
+        # Start the strategy manager
+        #strategy_manager.run()
+
+
+
+        #time.sleep(strategy_manager.orderbook_freq)
     # Position manager
+
 
 
 
