@@ -28,7 +28,7 @@ def main():
     position_manager = PositionManager(market_data_receiver.auth)
 
     #Initialize trade executor
-    trade_executor = TradeExecutor(position_manager, strategy_manager)
+    trade_manager = TradeManager(position_manager, strategy_manager)
 
 
     ##########################################
@@ -36,12 +36,16 @@ def main():
     ##########################################
     i = 0
     while True:
+        #broadcast current position
+        trade_manager.broadcast_position()
         #Run the position manager
         position_manager.run()
         #Run the strategy manager
-        strategy_manager.run()
+        if position_manager.ready:
+            strategy_manager.run()
         #Run the trade executor
-        trade_executor.run()
+        if strategy_manager.ready:
+            trade_manager.run()
         #Next iteration
         i += 1
         time.sleep(strategy_manager.orderbook_freq) #defaults to 5 seconds

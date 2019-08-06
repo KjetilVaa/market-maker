@@ -14,13 +14,12 @@ It should get all higher level parameters from the strategy manager
 
 class BasicStrategy():
 
-    def __init__(self, order_pairs, order_start_size, interval, min_spread):
+    def __init__(self, order_pairs, interval, min_spread):
         self.logger = logging.getLogger("root")
         self.metrics = None
         self.order_pairs = order_pairs
         self.ready = False
-        # how big should the first order be
-        self.order_start_size = order_start_size
+
         # distance in precentage between successive order pairs.
         # each order is designed to be (INTERVAL*n)% away from the spread.
         self.interval = interval

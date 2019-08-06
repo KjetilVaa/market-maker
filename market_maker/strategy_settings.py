@@ -6,7 +6,7 @@ strategy_settings = {
 
     "STRATEGY" : {
         # Instrument to market make on. NB: Must be in the format -> BASE-QUOTE
-        "SYMBOL": "USDC-DAI",
+        "SYMBOL": "ETH-DAI",
 
         #######################################################################
         # Order Size & Spreads

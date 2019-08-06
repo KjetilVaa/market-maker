@@ -37,6 +37,7 @@ class PositionManager():
         self.active_asks_size = [0.0]
         self.active_bids_size = [0.0]
         self.is_first_iteration = True
+        self.position = 0.0
         """
         below are some important strategy parameters from the settings file
         """
@@ -49,6 +50,7 @@ class PositionManager():
         self.logger.info("Updating account details - Calculating trade posistions")
         self._update_accounts()
         if self.ready:
+            self._calculate_current_position()
             self._calculate_positions()
             self._print_accounts()
         else:
@@ -64,17 +66,21 @@ class PositionManager():
             self.logger.info(f"A pair_currency_ratio of {self.pair_currency_ratio} is not within the threshold. Exiting...")
             raise Exception("Balance ratio supassed threshold")
         #if position is positive, make sell order size bigger
-        elif self.position > 0:
+        if self.position > 0:
             active_ask_size = self.order_start_size
             active_bid_size = self._dynamic_order_size(self.position)
         #if position is negative, make buy order size bigger
-        elif self.position < 0:
+        if self.position < 0:
             active_bid_size = self.order_start_size
             active_ask_size = self._dynamic_order_size(self.position)
         #if position is zero, make buy order size = sell order size
-        else:
+        if self.position == 0:
             active_ask_size = self.order_start_size
             active_bid_size = self.order_start_size
+
+        self.active_asks_size = [active_ask_size]
+        self.active_bids_size = [active_bids_size]
+
 
     def _dynamic_order_size(self, position):
         return self.order.order_start_size * np.exp(self.shape_parameter*position)

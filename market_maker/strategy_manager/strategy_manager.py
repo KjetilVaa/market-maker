@@ -38,7 +38,7 @@ class StrategyManager():
         # minimum spread to begin trading
         self.min_spread = strategy_settings["STRATEGY"]["MIN_SPREAD"]
         # initialize strategy
-        self.strategy = BasicStrategy(order_pairs=self.order_pairs, order_start_size=self.order_start_size, interval=self.interval, min_spread=self.min_spread)
+        self.strategy = BasicStrategy(order_pairs=self.order_pairs, interval=self.interval, min_spread=self.min_spread)
 
     def run(self):
         # fetch orderbook metrics
