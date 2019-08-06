@@ -18,11 +18,6 @@ def main():
     # Data receiver
     market_data_receiver = MarketDataReceiver(exchange=exchange, mode=mode)
 
-    # Authenticate market reciever
-    market_data_receiver.authenticate()
-    # Wait to fully authenticate
-    time.sleep(2)
-
     # Start the live orderbook for market receiver
     market_data_receiver.start_orderbook()
 
@@ -35,20 +30,18 @@ def main():
     #Initialize trade executor
     trade_executor = TradeExecutor(position_manager, strategy_manager)
 
-    # Wait for strategy and position manager to fully load
-    logger.info("Launching strategy and position manager")
 
     ##########################################
     #               MAIN LOOP                #
     ##########################################
     i = 0
     while True:
-        #Run the strategy manager
-        strategy_manager.run()
         #Run the position manager
         position_manager.run()
+        #Run the strategy manager
+        strategy_manager.run()
         #Run the trade executor
-
+        trade_executor.run()
         #Next iteration
         i += 1
         time.sleep(strategy_manager.orderbook_freq) #defaults to 5 seconds

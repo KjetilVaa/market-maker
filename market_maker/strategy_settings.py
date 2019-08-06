@@ -15,6 +15,9 @@ strategy_settings = {
         # How many pairs of buy/sell orders to keep up by default
         "ORDER_PAIRS" : 1,
 
+        # How drastically order buy/sell sizes should change based on position
+        "SHAPE_PARAMETER": -0.005,
+
         # ORDER_START_SIZE will be the default trade size
         # Number of contracts from level 1 to ORDER_PAIRS - 1 will follow the function
         # [ORDER_START_SIZE + ORDER_STEP_SIZE (Level -1)]

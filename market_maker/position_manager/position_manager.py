@@ -11,12 +11,14 @@ from market_maker.strategy_settings import strategy_settings
 
 
 """
-Position Manager's job is to constantly determine the size of each limit trade,
-and to dynamically adjust risk based on total funds on the account.
-For each iteration it will:
-1. Fetch total funds for relevant account
-2. Calculate a preferred buy/sell size
-
+For every iteration:
+- Store the amount of available base and quote asset on the chosen exchange
+- Store the ratio (base/quote) to observe the inventory don't get one-sided
+- Store the bid and ask order size
+    a. There must always be size for both sides in case we need to
+    quote new bid and ask at this iteration
+    b. The order size will be dynamically chosen based on the current position
+    (from the trade manager) to maintain a good inventory ratio
 """
 
 class PositionManager():
@@ -27,21 +29,25 @@ class PositionManager():
         self.auth = auth
         self.symbol = strategy_settings["STRATEGY"]["SYMBOL"]
         self.ready = False
+        self.starting_base_available = None
+        self.starting_quote_available = None
         self.base_currency = None
         self.quote_currency = None
         self.pair_currency_ratio = None
-        self.active_asks = [0.0]
-        self.active_bids = [0.0]
+        self.active_asks_size = [0.0]
+        self.active_bids_size = [0.0]
+        self.is_first_iteration = True
         """
         below are some important strategy parameters from the settings file
         """
         self.order_start_size = strategy_settings["STRATEGY"]["ORDER_START_SIZE"]
         self.order_step_size = strategy_settings["STRATEGY"]["ORDER_STEP_SIZE"]
+        self.shape_parameter = strategy_settings["STRATEGY"]["SHAPE_PARAMETER"]
 
 
     def run(self):
         self.logger.info("Updating account details - Calculating trade posistions")
-        self.update_accounts()
+        self._update_accounts()
         if self.ready:
             self._calculate_positions()
             self._print_accounts()
@@ -51,23 +57,27 @@ class PositionManager():
 
 
     def _calculate_positions(self):
-        # Dynamic order size calculation
-        if self.pair_currency_ratio >= 3.00 or self.pair_currency_ratio <= 0.75:
+        active_ask_size = 0.0
+        active_bid_size = 0.0
+        #if inventory is too unbalanced, abort.
+        if self.pair_currency_ratio >= 1.25 or self.pair_currency_ratio <= 0.75:
             self.logger.info(f"A pair_currency_ratio of {self.pair_currency_ratio} is not within the threshold. Exiting...")
             raise Exception("Balance ratio supassed threshold")
+        #if position is positive, make sell order size bigger
         elif self.position > 0:
-            #do something
+            active_ask_size = self.order_start_size
+            active_bid_size = self._dynamic_order_size(self.position)
+        #if position is negative, make buy order size bigger
         elif self.position < 0:
-            #do somethign
+            active_bid_size = self.order_start_size
+            active_ask_size = self._dynamic_order_size(self.position)
+        #if position is zero, make buy order size = sell order size
         else:
-            #do the same as launch
-        active_ask = self.order_start_size * float(self.base_currency["available"])
-        active_bid = self.order_start_size * float(self.quote_currency["available"])
-        self.active_asks = active_ask
-        self.active_bids = active_bid
+            active_ask_size = self.order_start_size
+            active_bid_size = self.order_start_size
 
-    def _order_size_model(self, position, shape_parameter=-0.005):
-        return 
+    def _dynamic_order_size(self, position):
+        return self.order.order_start_size * np.exp(self.shape_parameter*position)
 
     def _get_accounts(self):
         base_found = False
@@ -88,20 +98,25 @@ class PositionManager():
         if base_found and quote_found:
             if float(self.base_currency["available"]) <= 0.0 or float(self.quote_currency["available"]) <= 0.0:
                 self.logger.error("The base or quote account has no available assets. Exiting...")
+                self.ready = False
                 raise Exception("Not enough funds")
             self.ready = True
             self.pair_currency_ratio = float(self.base_currency["available"])/float(self.quote_currency["available"])
+            if self.is_first_iteration:
+                self.starting_base_available = float(self.base_currency["available"])
+                self.starting_quote_available = float(self.quote_currency["available"])
         else:
             self.ready = False
 
-    def update_accounts(self):
+    def _update_accounts(self):
         self.auth.authenticate(verbose=False)
         self._get_accounts()
 
-
     def _print_accounts(self):
-        print(f"base_currency: {self.base_currency}")
-        print(f"quote_currency: {self.quote_currency}")
         print(f"pair_currency_ratio: {self.pair_currency_ratio}")
+        print(f"position: {self.position}")
         print(f"active_asks: {self.active_asks}")
         print(f"active_bids: {self.active_bids}")
+
+    def _calculate_current_position(self, amount_sold, amount_bought):
+        self.position = amount_sold - amount_bought

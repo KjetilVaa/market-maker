@@ -8,12 +8,12 @@ import logging
 from market_maker.strategy_settings import strategy_settings
 from .basic_strategy import BasicStrategy
 """
-The strategy manager should, based on data the orderbook data, determine
-the following:
-1. At what price to place limit orders on both sides (this can be asymmetric)
-2. How many orders to place on each side and the interval between each
-3. When to remove limit orders on one side but not the other (when spread is too small)
-4. Determine the frequence of checking the orderbook. Default every 5 seconds
+For every iteration:
+- Store limit ask and limit bid price based on data from the orderbook
+TODO:
+- Determine multiple limit ask and bid prices
+- Determine asymmetric limit orders
+- Use orderbook flow to mitiage risk and increase spread
 """
 
 
