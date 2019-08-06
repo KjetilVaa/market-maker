@@ -27,9 +27,9 @@ class CoinbaseProAuth(cbpro.AuthenticatedClient):
         self.logger.info(f"Authenticating with coinbase_pro in {self.mode} mode")
         res = self.get_accounts()
         if len(res) > self.minimum_accounts:
-            self.logger.info(f"Successfully fetched following accounts from coinbase_pro")
             self.accounts = res
             if verbose:
+                self.logger.info(f"Successfully fetched following accounts from coinbase_pro")
                 for o in res:
                     print(f"""Account: {o["currency"]} - Balance: {o["balance"]} - Available: {o["available"]} - Hold: {o["hold"]}""")
         else:

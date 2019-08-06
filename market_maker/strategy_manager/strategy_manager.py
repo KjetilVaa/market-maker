@@ -25,8 +25,7 @@ class StrategyManager():
         self.orderbook_freq = orderbook_freq
         self.metrics = None
         self.ready = False
-        self.nb_sales = 0
-        self.nb_buys = 0
+        # these will have an immediate effect on position size
         self.i = 0
         """
         below are some important strategy parameters from the settings file

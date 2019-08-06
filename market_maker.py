@@ -5,6 +5,8 @@ from market_maker.utils import log
 from market_maker.market_data_receiver.market_data_receiver import MarketDataReceiver
 from market_maker.position_manager.position_manager import PositionManager
 from market_maker.strategy_manager.strategy_manager import StrategyManager
+from market_maker.trade_manager.trade_manager import TradeManager
+
 
 def main():
 
@@ -22,27 +24,34 @@ def main():
     time.sleep(2)
 
     # Start the live orderbook for market receiver
-    #market_data_receiver.start_orderbook()
+    market_data_receiver.start_orderbook()
 
     #Initialize the strategy manager
-    #strategy_manager = StrategyManager(market_data_receiver.orderbook)
+    strategy_manager = StrategyManager(market_data_receiver.orderbook)
 
     #Initialize position manager
     position_manager = PositionManager(market_data_receiver.auth)
 
+    #Initialize trade executor
+    trade_executor = TradeExecutor(position_manager, strategy_manager)
+
     # Wait for strategy and position manager to fully load
-    #logger.info("Launching strategy and position manager")
-    #time.sleep(3)
+    logger.info("Launching strategy and position manager")
 
-    # Here we start the infinite loop that listens to the orderbook
-    #while True:
-        # Start the strategy manager
-        #strategy_manager.run()
+    ##########################################
+    #               MAIN LOOP                #
+    ##########################################
+    i = 0
+    while True:
+        #Run the strategy manager
+        strategy_manager.run()
+        #Run the position manager
+        position_manager.run()
+        #Run the trade executor
 
-
-
-        #time.sleep(strategy_manager.orderbook_freq)
-    # Position manager
+        #Next iteration
+        i += 1
+        time.sleep(strategy_manager.orderbook_freq) #defaults to 5 seconds
 
 
 

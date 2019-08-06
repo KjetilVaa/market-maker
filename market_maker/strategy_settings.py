@@ -6,7 +6,7 @@ strategy_settings = {
 
     "STRATEGY" : {
         # Instrument to market make on. NB: Must be in the format -> BASE-QUOTE
-        "SYMBOL": "BTC-DAI",
+        "SYMBOL": "USDC-DAI",
 
         #######################################################################
         # Order Size & Spreads
@@ -15,11 +15,11 @@ strategy_settings = {
         # How many pairs of buy/sell orders to keep up by default
         "ORDER_PAIRS" : 1,
 
-        # ORDER_START_SIZE will be the trade size measured in percentage of total account
+        # ORDER_START_SIZE will be the default trade size
         # Number of contracts from level 1 to ORDER_PAIRS - 1 will follow the function
-        # [ORDER_START_SIZE + ORDER_STEP_SIZE (Level -1)] (measured in percentrage, e.g 0.005 = 0.5%)
-        "ORDER_START_SIZE": 0.01,
-        "ORDER_STEP_SIZE": 0.01,
+        # [ORDER_START_SIZE + ORDER_STEP_SIZE (Level -1)]
+        "ORDER_START_SIZE": 0.001,
+        "ORDER_STEP_SIZE": 0.001,
 
 
         # Distance between successive orders, as a percentage (example: 0.005 for 0.5%)
