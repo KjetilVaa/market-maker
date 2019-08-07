@@ -50,7 +50,7 @@ class PositionManager():
         self.logger.info("Updating account details - Calculating trade posistions")
         self._update_accounts()
         if self.ready:
-            self._calculate_current_position()
+            self._calculate_current_position(self.position)
             self._calculate_positions()
             self._print_accounts()
         else:
@@ -64,7 +64,7 @@ class PositionManager():
         #if inventory is too unbalanced, abort.
         if self.pair_currency_ratio >= 1.25 or self.pair_currency_ratio <= 0.75:
             self.logger.info(f"A pair_currency_ratio of {self.pair_currency_ratio} is not within the threshold. Exiting...")
-            raise Exception("Balance ratio supassed threshold")
+            raise Exception("Balance ratio surpassed threshold limit")
         #if position is positive, make sell order size bigger
         if self.position > 0:
             active_ask_size = self.order_start_size
@@ -79,7 +79,7 @@ class PositionManager():
             active_bid_size = self.order_start_size
 
         self.active_asks_size = [active_ask_size]
-        self.active_bids_size = [active_bids_size]
+        self.active_bids_size = [active_bid_size]
 
 
     def _dynamic_order_size(self, position):
@@ -121,8 +121,8 @@ class PositionManager():
     def _print_accounts(self):
         print(f"pair_currency_ratio: {self.pair_currency_ratio}")
         print(f"position: {self.position}")
-        print(f"active_asks: {self.active_asks}")
-        print(f"active_bids: {self.active_bids}")
+        print(f"active_asks_size: {self.active_asks_size}")
+        print(f"active_bids_size: {self.active_bids_size}")
 
     def _calculate_current_position(self, position):
         self.position = position

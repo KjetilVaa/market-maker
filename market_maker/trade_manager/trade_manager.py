@@ -57,17 +57,18 @@ class TradeManager():
             raise Exception("Managers not ready to execute trades")
         #Get current trades
         current_orders = self._get_current_trades()
+        current_orders = list(current_orders)
         self.nb_open_orders = len(current_orders)
 
         #If there are 0 or 2 open orders, we open one limit ask and one limit bid
         if self.nb_open_orders == 0 or self.nb_open_orders == 2:
             self.ready = True
             #for ask
-            size = self.position_manager.current_active_ask[0]
+            size = self.position_manager.active_asks_size[0]
             price = self.strategy_manager.strategy.current_active_asks[0]
             pos1 = {"side": "sell", "price": price, "size": size}
             #for bid
-            size = self.position_manager.current_active_bid[0]
+            size = self.position_manager.active_bids_size[0]
             price = self.strategy_manager.strategy.current_active_bids[0]
             pos2 = {"side": "buy", "price": price, "size": size}
             #execute in parallel
@@ -126,7 +127,7 @@ class TradeManager():
     # place limit order
     def _place_limit_order(self, side, price, size):
         self.logger.info(f"{strategy_settings['STRATEGY']['SYMBOL']} - NEW {side} ORDER - PRICE: {price} - SIZE: {size}")
-        return self.position_manager.auth.place_limit_order(product_id=strategy_settings["STRATEGY"]["SYMBOL"], side=side, price=price, size=size)
+        #return self.position_manager.auth.place_limit_order(product_id=strategy_settings["STRATEGY"]["SYMBOL"], side=side, price=price, size=size)
 
     # get all open orders
     def _get_current_trades(self):

@@ -22,8 +22,6 @@ class CoinbaseProOrderbook(cbpro.WebsocketClient):
         self.products = [settings["SYMBOL"]]
         self.channels = ["level2"]
         self.type = message_type
-        self.stop = True
-        self.error = None
         self.ws = None
         self.thread = None
         self.auth = auth

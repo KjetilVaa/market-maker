@@ -39,21 +39,21 @@ class BasicStrategy():
             return
         elif metrics["spread_precentage"] >= self.min_spread:
             limit_ask, limit_bid = self._determine_limit_order(metrics["best_ask"], metrics["best_bid"])
-            if limit_ask != self.active_asks and limit_bid != self.active_bids:
-                self.active_asks = limit_ask
-                self.active_bids = limit_bid
+            if limit_ask != self.current_active_asks and limit_bid != self.current_active_bids:
+                self.current_active_asks = limit_ask
+                self.current_active_bids = limit_bid
                 self.logger.info(f"NEW ASK: {limit_ask} - NEW BID: {limit_bid} - SPREAD: {metrics['spread_precentage']}")
             else:
-                self.logger.info("Same ask and bid as last time.")
+                self.logger.info(f"SAME ASK: {limit_ask} - SAME BID: {limit_bid} - SPREAD: {metrics['spread_precentage']}")
         else:
             self.logger.info(f"SPREAD TOO LOW - MIN_SPREAD: {self.min_spread} - SPREAD: {metrics['spread_precentage']}")
             #Cancel all orders
             return
 
 
-    def _determine_limit_order(self, best_ask, best_bid, spread_precentage):
+    def _determine_limit_order(self, best_ask, best_bid):
         # only supports one order pair currently
-        if self.order_pair == 1:
+        if self.order_pairs == 1:
             # New limit = old_best_limit - (old_best_limit * precentage_interval)
             limit_ask = best_ask - (best_ask*self.interval)
             limit_bid = best_bid - (best_bid*self.interval)

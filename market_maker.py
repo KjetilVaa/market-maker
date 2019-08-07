@@ -1,5 +1,7 @@
 import logging
 import time
+import sys
+import traceback
 
 from market_maker.utils import log
 from market_maker.market_data_receiver.market_data_receiver import MarketDataReceiver
@@ -33,29 +35,36 @@ def main():
     #Initialize trade executor
     trade_manager = TradeManager(position_manager, strategy_manager)
 
-    trade_manager.broadcast_position()
     ##########################################
     #               MAIN LOOP                #
     ##########################################
-    """
-    i = 0
-    while True:
-        #broadcast current position
-        trade_manager.broadcast_position()
-        #Run the position manager
-        position_manager.run()
-        #Run the strategy manager
-        if position_manager.ready:
-            strategy_manager.run()
-        #Run the trade executor
-        if strategy_manager.ready:
-            trade_manager.run()
-        #Next iteration
-        i += 1
-        time.sleep(strategy_manager.orderbook_freq) #defaults to 5 seconds
 
+    try:
+        i = 0
+        while True:
+            logger.info(f"Starting iteration - {i}")
+            if market_data_receiver.orderbook.stop == True:
+                logger.error(f"Orderbook status: {market_data_receiver.orderbook.stop}")
+                raise Exception("Orderbook error.")
+            #broadcast current position
+            trade_manager.broadcast_position()
+            #Run the position manager
+            position_manager.run()
+            #Run the strategy manager
+            if position_manager.ready:
+                strategy_manager.run()
+            #Run the trade executor
+            if strategy_manager.ready:
+                trade_manager.run()
+            #Next iteration
+            i += 1
+            time.sleep(strategy_manager.orderbook_freq) #defaults to 5 seconds
+    except Exception as e:
+        logger.error(f"Critical error ocurred: {e}")
+        market_data_receiver.close_orderbook()
+        traceback.print_exc()
+        sys.exit(1)
 
-    """
 
 
 if __name__ == "__main__":
