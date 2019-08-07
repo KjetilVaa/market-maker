@@ -124,5 +124,5 @@ class PositionManager():
         print(f"active_asks: {self.active_asks}")
         print(f"active_bids: {self.active_bids}")
 
-    def _calculate_current_position(self, amount_sold, amount_bought):
-        self.position = amount_sold - amount_bought
+    def _calculate_current_position(self, position):
+        self.position = position

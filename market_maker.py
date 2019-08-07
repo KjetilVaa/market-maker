@@ -21,6 +21,9 @@ def main():
     # Start the live orderbook for market receiver
     market_data_receiver.start_orderbook()
 
+    # Wait for orderbook to load completely
+    time.sleep(2)
+
     #Initialize the strategy manager
     strategy_manager = StrategyManager(market_data_receiver.orderbook)
 
@@ -30,10 +33,11 @@ def main():
     #Initialize trade executor
     trade_manager = TradeManager(position_manager, strategy_manager)
 
-
+    trade_manager.broadcast_position()
     ##########################################
     #               MAIN LOOP                #
     ##########################################
+    """
     i = 0
     while True:
         #broadcast current position
@@ -51,7 +55,7 @@ def main():
         time.sleep(strategy_manager.orderbook_freq) #defaults to 5 seconds
 
 
-
+    """
 
 
 if __name__ == "__main__":

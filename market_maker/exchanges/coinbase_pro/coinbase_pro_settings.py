@@ -15,6 +15,8 @@ coinbase_pro_settings = {
     # Coinbase's websocket is rate-limited to 1 request per 4 seconds
     "RATE_LIMIT": 3,
 
+    "DATETIME_FORMAT": "%Y-%m-%dT%H:%M:%S.%fZ",
+
     "REAL": {
         # API ENDPOINT URL
         "API_URL": "https://api.pro.coinbase.com",

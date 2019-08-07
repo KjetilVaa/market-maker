@@ -21,6 +21,7 @@ class CoinbaseProAuth(cbpro.AuthenticatedClient):
         self.api_passphrase = settings[self.mode]["API_PASSPHRASE"]
         self.api_url = settings[self.mode]["API_URL"]
         self.accounts = []
+        self.datetime_format = settings["DATETIME_FORMAT"]
         super(CoinbaseProAuth, self).__init__(self.api_key, self.api_secret, self.api_passphrase, self.api_url)
 
     def authenticate(self, verbose):

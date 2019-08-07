@@ -25,8 +25,8 @@ class BasicStrategy():
         self.interval = interval
         # minimum spread to begin trading
         self.min_spread = min_spread
-        self.active_asks = [0.0]
-        self.active_bids = [0.0]
+        self.current_active_asks = [0.0]
+        self.current_active_bids = [0.0]
 
 
     def calculate(self, metrics, ready):
