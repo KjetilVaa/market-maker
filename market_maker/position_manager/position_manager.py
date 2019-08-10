@@ -33,6 +33,8 @@ class PositionManager():
         self.starting_quote_available = None
         self.base_currency = None
         self.quote_currency = None
+        self.starting_total_quote_currency = None
+        self.current_total_quote_currency = None
         self.pair_currency_ratio = None
         self.active_asks_size = [0.0]
         self.active_bids_size = [0.0]
@@ -46,11 +48,12 @@ class PositionManager():
         self.shape_parameter = strategy_settings["STRATEGY"]["SHAPE_PARAMETER"]
 
 
-    def run(self):
+    def run(self, best_ask):
         self.logger.info("Updating account details - Calculating trade posistions")
+        self.best_ask = best_ask
         self._update_accounts()
         if self.ready:
-            self._calculate_current_position(self.position)
+            self._get_position(self.position)
             self._calculate_positions()
             self._print_accounts()
         else:
@@ -107,10 +110,12 @@ class PositionManager():
                 self.ready = False
                 raise Exception("Not enough funds")
             self.ready = True
-            self.pair_currency_ratio = float(self.base_currency["available"])/float(self.quote_currency["available"])
+            self.pair_currency_ratio = float(self.base_currency["available"])*float(self.best_ask)/float(self.quote_currency["available"])
+            self.current_total_quote_currency = self._translate_inventory_to_quote_currency(self.base_currency["available"], self.quote_currency["available"], self.best_ask)
             if self.is_first_iteration:
                 self.starting_base_available = float(self.base_currency["available"])
                 self.starting_quote_available = float(self.quote_currency["available"])
+                self.starting_total_quote_currency = self._translate_inventory_to_quote_currency(self.starting_base_available, self.starting_quote_available, self.best_ask)
         else:
             self.ready = False
 
@@ -124,5 +129,8 @@ class PositionManager():
         print(f"active_asks_size: {self.active_asks_size}")
         print(f"active_bids_size: {self.active_bids_size}")
 
-    def _calculate_current_position(self, position):
+    def _get_position(self, position):
         self.position = position
+
+    def _translate_inventory_to_quote_currency(self, base_currency, quote_currency, best_ask):
+        return (float(base_currency) * float(best_ask)) + float(quote_currency)

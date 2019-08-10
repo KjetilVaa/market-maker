@@ -6,7 +6,7 @@ strategy_settings = {
 
     "STRATEGY" : {
         # Instrument to market make on. NB: Must be in the format -> BASE-QUOTE
-        "SYMBOL": "ETH-DAI",
+        "SYMBOL": "ETH-USDC",
 
         #######################################################################
         # Order Size & Spreads
@@ -18,18 +18,17 @@ strategy_settings = {
         # How drastically order buy/sell sizes should change based on position
         "SHAPE_PARAMETER": -0.005,
 
-        # ORDER_START_SIZE will be the default trade size
-        # Number of contracts from level 1 to ORDER_PAIRS - 1 will follow the function
-        # [ORDER_START_SIZE + ORDER_STEP_SIZE (Level -1)]
-        "ORDER_START_SIZE": 0.001,
-        "ORDER_STEP_SIZE": 0.001,
+        # ORDER_START_SIZE will be the default trade size in quote currency
+        # [ORDER_START_SIZE + ORDER_STEP_SIZE] for each trading pairs
+        "ORDER_START_SIZE": 1.0,
+        "ORDER_STEP_SIZE": 1.0,
 
 
         # Distance between successive orders, as a percentage (example: 0.005 for 0.5%)
         "INTERVAL": 0.005,
 
-        # Minimum spread to maintain, in percent, between asks & bids
-        "MIN_SPREAD": 0.01,
+        # Minimum spread to maintain, in precent, between asks & bids
+        "MIN_SPREAD": 0.0001,
 
         # If True, market-maker will place orders just inside the existing spread and work the interval % outwards,
         # rather than starting in the middle and killing potentially profitable spreads.

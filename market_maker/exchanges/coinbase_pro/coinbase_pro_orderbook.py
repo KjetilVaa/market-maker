@@ -62,6 +62,7 @@ class CoinbaseProOrderbook(cbpro.WebsocketClient):
         if msg["type"] == "error":
             self.logger.error("Error: " + msg["message"] + " - Reason: " + msg["reason"])
             self.ready = False
+            self.stop = True
             raise Exception("Exiting...")
 
         # First snapshot of orderbook

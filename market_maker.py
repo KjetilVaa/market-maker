@@ -35,6 +35,13 @@ def main():
     #Initialize trade executor
     trade_manager = TradeManager(position_manager, strategy_manager)
 
+    def session_summary(starting_inv, current_inv, inv_ratio):
+        print("****** SESSION SUMMARY ******")
+        print(f"CURRENT INVENTORY RATIO: {inv_ratio}")
+        print(f"STARTING INVENTORY: {starting_inv}")
+        print(f"CURRENT INVENTORY: {current_inv}")
+        print(f"PROFIT: {starting_inv-current_inv}")
+
     ##########################################
     #               MAIN LOOP                #
     ##########################################
@@ -44,18 +51,23 @@ def main():
         while True:
             logger.info(f"Starting iteration - {i}")
             if market_data_receiver.orderbook.stop == True:
-                logger.error(f"Orderbook status: {market_data_receiver.orderbook.stop}")
+                logger.error(f"Orderbook stop status: {market_data_receiver.orderbook.stop}")
                 raise Exception("Orderbook error.")
             #broadcast current position
             trade_manager.broadcast_position()
             #Run the position manager
-            position_manager.run()
+            position_manager.run(strategy_manager.orderbook.best_ask)
             #Run the strategy manager
             if position_manager.ready:
                 strategy_manager.run()
             #Run the trade executor
             if strategy_manager.ready:
                 trade_manager.run()
+            #Check the trade executor is ready
+            if not trade_manager.ready:
+                raise Exception("Trade manager not ready")
+            #Print session summary
+            session_summary(position_manager.starting_total_quote_currency, position_manager.current_total_quote_currency, position_manager.pair_currency_ratio)
             #Next iteration
             i += 1
             time.sleep(strategy_manager.orderbook_freq) #defaults to 5 seconds

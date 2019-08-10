@@ -60,8 +60,8 @@ class TradeManager():
         current_orders = list(current_orders)
         self.nb_open_orders = len(current_orders)
 
-        #If there are 0 or 2 open orders, we open one limit ask and one limit bid
-        if self.nb_open_orders == 0 or self.nb_open_orders == 2:
+        #If there are 0 open orders, we open one limit ask and one limit bid
+        if self.nb_open_orders == 0:
             self.ready = True
             #for ask
             size = self.position_manager.active_asks_size[0]
@@ -73,6 +73,23 @@ class TradeManager():
             pos2 = {"side": "buy", "price": price, "size": size}
             #execute in parallel
             self._place_two_limit_orders(pos1, pos2)
+
+        #If there are 2 open orders, we cancel each of them and place two new ones
+        elif self.nb_open_orders == 2:
+            self.ready = True
+            #cancel existing orders
+            self._cancel_all_open_orders()
+            #for ask
+            size = self.position_manager.active_asks_size[0]
+            price = self.strategy_manager.strategy.current_active_asks[0]
+            pos1 = {"side": "sell", "price": price, "size": size}
+            #for bid
+            size = self.position_manager.active_bids_size[0]
+            price = self.strategy_manager.strategy.current_active_bids[0]
+            pos2 = {"side": "buy", "price": price, "size": size}
+            #execute in parallel
+            self._place_two_limit_orders(pos1, pos2)
+
         #If there are one open order, we wait five seconds before cancelling it
         elif self.nb_open_orders == 1:
             self.ready = True
@@ -80,8 +97,13 @@ class TradeManager():
             if self.is_trailing_order:
                 self._cancel_open_order(current_orders[0]["id"])
                 self.is_trailing_order = False
+            else:
+                trailing_order = current_orders[0]
+                self.logger.info(f"{strategy_settings['STRATEGY']['SYMBOL']} - TRAILING {trailing_order['side']} ORDER - PRICE: {trailing_order['price']} - SIZE: {trailing_order['size']}")
+                self.logger.info(f"REMOVING TRAILING ORDER NEXT CYCLE")
         else:
-            self.logger.info("Failed to read number of open orders. Existing...")
+            self.logger.info("There are more than two open orders...Cancelling all orders and exiting")
+            self._cancel_all_open_orders()
             self.ready = False
             raise Exception("Trade manager failed to get orders")
 
@@ -91,7 +113,7 @@ class TradeManager():
         all_fills = self._get_all_fills()
         all_fills = list(all_fills)
         # Filter out trades that happened earlier than this bot run session
-        if len(all_fills) < 1:
+        if len(all_fills) < 1 or type(all_fills[0]) is not dict:
             self.total_trades = []
             self.logger.info("Found no filled orders for strategy_settings['STRATEGY']['SYMBOL']")
             self.position_manager._calculate_current_position(self.position)
@@ -112,7 +134,7 @@ class TradeManager():
                 self.logger.info("No filled trades found.")
             self.position = self.amount_sold - self.amount_bought
             self.logger.info(f"POSITION: {self.position}")
-            self.position_manager._calculate_current_position(self.position)
+            self.position_manager._get_position(self.position)
 
 
     # place two limit orders in parallell
@@ -148,7 +170,3 @@ class TradeManager():
     def _cancel_all_open_orders(self):
         self.logger.info(f"Cancelling all open orders")
         return self.position_manager.auth.cancel_all(product_id=strategy_settings["STRATEGY"]["SYMBOL"])
-
-    def _trading_summary(self):
-        print("trading summary not done")
-        #TODO: Should return a summary of profits and other metrics for this session
