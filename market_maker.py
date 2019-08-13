@@ -23,6 +23,7 @@ def main():
     # Start the live orderbook for market receiver
     market_data_receiver.start_orderbook()
 
+    """
     # Wait for orderbook to load completely
     time.sleep(2)
 
@@ -76,6 +77,8 @@ def main():
         market_data_receiver.close_orderbook()
         traceback.print_exc()
         sys.exit(1)
+
+    """
 
 
 

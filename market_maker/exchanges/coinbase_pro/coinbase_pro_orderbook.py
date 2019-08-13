@@ -76,6 +76,7 @@ class CoinbaseProOrderbook(cbpro.WebsocketClient):
 
         # Every update of orderbook
         if msg['type'] == 'l2update':
+            print(msg["changes"])
             self.ready = True
             for change in msg['changes']:
                 action = change[0]
