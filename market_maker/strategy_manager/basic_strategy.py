@@ -14,7 +14,7 @@ It should get all higher level parameters from the strategy manager
 
 class BasicStrategy():
 
-    def __init__(self, order_pairs, interval, min_spread):
+    def __init__(self, order_pairs, inside_spread, interval, min_spread):
         self.logger = logging.getLogger("root")
         self.metrics = None
         self.order_pairs = order_pairs
@@ -25,6 +25,8 @@ class BasicStrategy():
         self.interval = interval
         # minimum spread to begin trading
         self.min_spread = min_spread
+        # inside spread
+        self.inside_spread = inside_spread
         # required_spread to trade profitable: (best_ask - (best_ask*interval)) - (best_bid + (best_bid*interval))
         self.bid_ask_minimum_spread = 0.0
         self.current_active_asks = [0.0]
@@ -37,12 +39,11 @@ class BasicStrategy():
         self.ready = ready
         print("Best ask:", metrics["best_ask"])
         print("Best bid:", metrics["best_bid"])
-        self.bid_ask_minimum_spread = (metrics["best_ask"] - (metrics["best_ask"] * self.interval)) - (metrics["best_bid"] + (metrics["best_bid"] * self.interval))
 
         if ready == False:
             self.logger.info("Strategy Manager not ready. Trying again")
             return
-        elif metrics["spread"] >= self.min_spread and metrics["spread"] > self.bid_ask_minimum_spread:
+        elif metrics["spread_precentage"] >= self.min_spread:
             limit_ask, limit_bid = self._determine_limit_order(metrics["best_ask"], metrics["best_bid"])
             if limit_ask != self.current_active_asks and limit_bid != self.current_active_bids:
                 self.current_active_asks = limit_ask
@@ -60,9 +61,9 @@ class BasicStrategy():
         # only supports one order pair currently
         if self.order_pairs == 1:
             # New limit = old_best_limit - (old_best_limit * precentage_interval)
-            limit_ask = best_ask - (best_ask*self.interval)
-            limit_bid = best_bid + (best_bid*self.interval)
-            return [limit_ask], [limit_bid]
+            limit_ask = best_ask - (best_ask*self.inside_spread)
+            limit_bid = best_bid + (best_bid*self.inside_spread)
+            return limit_ask, limit_bid
         else:
             self.logger.error(f"Strategy does not support {self.order_pairs} - Exiting...")
             raise Exception("Strategy settings is not supported")

@@ -19,14 +19,15 @@ TODO:
 
 class StrategyManager():
 
-    def __init__(self, orderbook, orderbook_freq=5):
+    def __init__(self, orderbook):
         self.logger = logging.getLogger("root")
+        if len(orderbook["asks"]) <= 1 or len(orderbook["bids"]) <= 1:
+            self.orderbook = None
+            self.ready = False
         self.orderbook = orderbook
-        self.orderbook_freq = orderbook_freq
-        self.metrics = None
-        self.ready = False
+        self.ready = True
+
         # these will have an immediate effect on position size
-        self.i = 0
         """
         below are some important strategy parameters from the settings file
         """
@@ -37,25 +38,11 @@ class StrategyManager():
         self.interval = strategy_settings["STRATEGY"]["INTERVAL"]
         # minimum spread to begin trading
         self.min_spread = strategy_settings["STRATEGY"]["MIN_SPREAD"]
+        # beating the competition
+        self.inside_spread = strategy_settings["STRATEGY"]["INSIDE_SPREAD"]
         # initialize strategy
-        self.strategy = BasicStrategy(order_pairs=self.order_pairs, interval=self.interval, min_spread=self.min_spread)
+        self.strategy = BasicStrategy(order_pairs=self.order_pairs, inside_spread = self.inside_spread, interval=self.interval, min_spread=self.min_spread)
 
     def run(self):
-        # fetch orderbook metrics
-        self.metrics = self._get_orderbook()
         # calculate strategy
-        self.strategy.calculate(self.metrics, self.ready)
-
-
-
-
-    def _get_orderbook(self):
-        if self.orderbook.is_ready():
-            self.logger.info("Fetching orderbook data and determining strategy")
-            res = self.orderbook.get_metrics()
-            self.ready = True
-            return res
-        else:
-            self.logger.info("Orderbook not ready. Trying again...")
-            self.ready = False
-            return None
+        self.strategy.calculate(self.orderbook, self.ready)

@@ -3,14 +3,20 @@ import logging
 import time
 import sys
 
-# Each supported exchange needs a class for auth and orderbook
+from market_maker.exchanges.coinbasepro.coinbasepro import CoinbasePro
 
-#### COINBASE PRO ####
-# Websocket Orderbook
-from market_maker.exchanges.coinbase_pro.coinbase_pro_orderbook import CoinbaseProOrderbook
-# Auth class
-from market_maker.exchanges.coinbase_pro.coinbase_pro_auth import CoinbaseProAuth
-####################
+"""
+This is the master class for each exchange. It should do the following:
+- Be able to start the orderbook receiver
+- Be able to authenticate with the exchange
+- Be able to stop the orderbook
+- Be able to unauthenticate from the exchange
+
+In addition, each supported exchange should be implemented under "exchanges" with:
+- An auth class
+- An orderbook class
+- An settings class (request rate etc. for spesific exchange)
+"""
 
 class MarketDataReceiver():
 
@@ -20,19 +26,18 @@ class MarketDataReceiver():
         #Mode is either sandbox or real trading
         self.mode = mode
         #Check if provided exchange is supported
-        self.orderbook, self.auth = self._initialize_exchange(exchange)
-        self.rate_limit = self.orderbook.rate_limit
+        self.exchange = self._initialize_exchange(exchange)
 
-    def authenticate(self):
-        self.auth.authenticate(verbose=True)
+    def get_balance(self):
+        self.exchange.get_balance()
 
-    def start_orderbook(self):
-        self.orderbook.start()
+    def get_orderbook(self):
+        self.exchange.get_orderbook()
 
     def close_orderbook(self):
-        self.orderbook.close()
+        self.orderbook.close_orderbook()
 
     def _initialize_exchange(self, exchange):
-        if exchange == "coinbase_pro":
-            return CoinbaseProOrderbook(mode=self.mode), CoinbaseProAuth(mode=self.mode)
+        if exchange == "coinbasepro":
+            return CoinbasePro(mode=self.mode)
         raise Exception("Exchange not supported")

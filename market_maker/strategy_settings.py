@@ -6,7 +6,7 @@ strategy_settings = {
 
     "STRATEGY" : {
         # Instrument to market make on. NB: Must be in the format -> BASE-QUOTE
-        "SYMBOL": "ETH-USDC",
+        "SYMBOL": 'ETH/USDC',
 
         #######################################################################
         # Order Size & Spreads
@@ -27,12 +27,18 @@ strategy_settings = {
         # Distance between successive orders, as a percentage (example: 0.005 for 0.5%)
         "INTERVAL": 0.005,
 
-        # Minimum spread to maintain, in precent, between asks & bids
-        "MIN_SPREAD": 0.0001,
+        # Minimum spread to maintain, in precent, between asks & bids, 0.01 = 1%
+        "MIN_SPREAD": 0.01,
 
         # If True, market-maker will place orders just inside the existing spread and work the interval % outwards,
         # rather than starting in the middle and killing potentially profitable spreads.
         "MAINTAIN_SPREADS": True,
+
+        # How much inside the spread are you willing to put limit orders measured in precentage
+        # If the spread is 1% and INSIDE_SPREAD = 0.001, then your limit orders will be
+        # 0.1% inside the spread window. This is to beat the competition.
+        # INSIDE_SPREAD = 0.0 means mathing the current best_ask and best_bid
+        "INSIDE_SPREAD": 0.0,
 
         # This number defines far much the price of an existing order can be from a desired order before it is amended.
         # This is useful for avoiding unnecessary calls and maintaining your ratelimits.
